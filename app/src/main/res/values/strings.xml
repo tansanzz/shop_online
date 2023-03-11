@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Shop Online</string>
+    <string name="create_an_account">Create an account</string>
+    <string name="already_have_an_account">Already have an account?</string>
+</resources>
