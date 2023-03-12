@@ -39,4 +39,8 @@ public class UserDomain {
     public void setConfirmPassword(String confirmPassword) {
         this.confirmPassword = confirmPassword;
     }
+
+    public boolean isValidPassword() {
+        return getPassword().equals(getConfirmPassword());
+    }
 }

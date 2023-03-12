@@ -1,4 +1,4 @@
-package com.example.shoponline.Utils;
+package com.example.shoponline.Shared.Utils;
 
 import android.app.Activity;
 import android.app.AlertDialog;

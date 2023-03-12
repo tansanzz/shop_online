@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/mi_home"
+        android:icon="@drawable/icon_home_inactive"
+        android:title="Home" />
+    <item
+        android:id="@+id/mi_menu"
+        android:icon="@drawable/icon_menu_inactive"
+        android:title="Menu" />
+    <item
+        android:id="@+id/mi_history"
+        android:icon="@drawable/icon_history_inactive"
+        android:title="History" />
+    <item
+        android:id="@+id/mi_more"
+        android:icon="@drawable/icon_more_inactive"
+        android:title="More" />
+</menu>

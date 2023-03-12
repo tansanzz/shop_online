@@ -1,4 +1,4 @@
-package com.example.shoponline.Utils;
+package com.example.shoponline.Shared.Utils;
 
 import com.example.shoponline.Activity.MainActivity;
 

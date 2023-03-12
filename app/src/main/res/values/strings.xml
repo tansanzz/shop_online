@@ -2,4 +2,8 @@
     <string name="app_name">Shop Online</string>
     <string name="create_an_account">Create an account</string>
     <string name="already_have_an_account">Already have an account?</string>
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="hint_input_email">Your email</string>
+    <string name="hint_input_password">Your password</string>
+    <string name="hint_input_confirm_password">Your confirm password</string>
 </resources>
