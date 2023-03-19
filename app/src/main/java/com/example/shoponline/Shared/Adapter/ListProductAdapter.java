@@ -1,6 +1,8 @@
 package com.example.shoponline.Shared.Adapter;
 
 import android.content.Intent;
+import android.graphics.Color;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,15 +14,24 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.shoponline.Activity.ProductDetailActivity;
 import com.example.shoponline.R;
+import com.example.shoponline.Services.CartServices;
 import com.example.shoponline.Shared.Entities.ProductEntity;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.List;
 
 public class ListProductAdapter extends RecyclerView.Adapter<ListProductAdapter.ViewHolder> {
     public List<ProductEntity> products;
+    CartServices cartServices;
+    FirebaseFirestore db;
 
     public ListProductAdapter(List<ProductEntity> products) {
         this.products = products;
+        cartServices = new CartServices();
+        db = FirebaseFirestore.getInstance();
     }
 
     @NonNull
@@ -36,6 +47,16 @@ public class ListProductAdapter extends RecyclerView.Adapter<ListProductAdapter.
     @Override
     public void onBindViewHolder(@NonNull ListProductAdapter.ViewHolder holder, int position) {
         final ProductEntity product = products.get(position);
+        cartServices.get(db, product.getProductCode()).addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful() && task.getResult().getData() != null) {
+                    holder.imvAdd.setImageResource(R.drawable.icon_checked);
+                } else if (!task.isSuccessful()) {
+                    Log.d("TAG", "get failed with ", task.getException());
+                }
+            }
+        });
         holder.tvProductName.setText(product.getProductName());
         holder.tvProductPrice.setText(product.getProductPrice().toString() + " đồng");
     }
@@ -48,6 +69,7 @@ public class ListProductAdapter extends RecyclerView.Adapter<ListProductAdapter.
     public static class ViewHolder extends RecyclerView.ViewHolder {
         public TextView tvProductName, tvProductPrice;
         public ImageView imvAdd;
+
         public ViewHolder(View itemView) {
             super(itemView);
             this.tvProductName = itemView.findViewById(R.id.tvName);

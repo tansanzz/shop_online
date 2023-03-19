@@ -1,5 +1,7 @@
 package com.example.shoponline.Activity.Fragments;
 
+import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -12,50 +14,42 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 
+import com.example.shoponline.Activity.CartActivity;
 import com.example.shoponline.R;
 import com.example.shoponline.Services.ProductServices;
 import com.example.shoponline.Shared.Adapter.ListProductAdapter;
-import com.example.shoponline.Shared.Adapter.PopularProductAdapter;
 import com.example.shoponline.Shared.Entities.ProductEntity;
 import com.example.shoponline.Shared.Enums.ProductType;
+import com.example.shoponline.Shared.Utils.LoadingDialog;
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
 public class MenuFragment extends Fragment {
 
-    DatabaseReference mDatabase;
     FirebaseFirestore db;
     ProductServices productServices;
     RecyclerView rcvMenuItem;
+    LoadingDialog loadingDialog;
 
-    public MenuFragment() {
-        mDatabase = FirebaseDatabase.getInstance().getReference();
+    public MenuFragment(LoadingDialog loadingDialog) {
         db = FirebaseFirestore.getInstance();
         productServices = new ProductServices();
+        this.loadingDialog = loadingDialog;
     }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        loadingDialog.mask();
         List<ProductEntity> products = new ArrayList<>();
         productServices.getAll(db).addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
@@ -70,6 +64,7 @@ public class MenuFragment extends Fragment {
                 } else {
                     Log.d("TAG", "get failed with ", task.getException());
                 }
+                loadingDialog.unmask();
             }
         });
     }
@@ -82,6 +77,9 @@ public class MenuFragment extends Fragment {
         getView().findViewById(R.id.btnTypeFood).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                setButtonStatus(true, getView().findViewById(R.id.btnTypeFood));
+                setButtonStatus(false, getView().findViewById(R.id.btnTypeDrink));
+                loadingDialog.mask();
                 productServices.getAll(db).addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
@@ -93,12 +91,12 @@ public class MenuFragment extends Fragment {
                                 if (product.getProductType() == ProductType.FOOD.getValue()) {
                                     products.add(product);
                                 }
-
                             }
                             showListProduct(ProductType.FOOD, products);
                         } else {
                             Log.d("TAG", "get failed with ", task.getException());
                         }
+                        loadingDialog.unmask();
                     }
                 });
             }
@@ -106,6 +104,9 @@ public class MenuFragment extends Fragment {
         getView().findViewById(R.id.btnTypeDrink).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                setButtonStatus(true, getView().findViewById(R.id.btnTypeDrink));
+                setButtonStatus(false, getView().findViewById(R.id.btnTypeFood));
+                loadingDialog.mask();
                 productServices.getAll(db).addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
@@ -123,8 +124,16 @@ public class MenuFragment extends Fragment {
                         } else {
                             Log.d("TAG", "get failed with ", task.getException());
                         }
+                        loadingDialog.unmask();
                     }
                 });
+            }
+        });
+        getView().findViewById(R.id.imvCart).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(getContext(), CartActivity.class);
+                startActivity(i);
             }
         });
     }
@@ -147,5 +156,15 @@ public class MenuFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.menu_view, container, false);
+    }
+
+    public void setButtonStatus(boolean isActtive, Button button) {
+        if (isActtive) {
+            button.setBackgroundResource(R.drawable.bg_button_active);
+            button.setTextColor(Color.parseColor("#F3F3F3"));
+        } else {
+            button.setBackgroundResource(R.drawable.bg_button_inactive);
+            button.setTextColor(Color.parseColor("#808080"));
+        }
     }
 }

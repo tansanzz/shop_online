@@ -3,6 +3,7 @@ package com.example.shoponline.Services;
 import com.example.shoponline.Shared.Entities.Anotations.Table;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 
@@ -29,5 +30,17 @@ public class BaseServices<T> {
         String tableName = getTableName();
         CollectionReference collectRef = db.collection(tableName);
         return collectRef.document(documnent).set(object);
+    }
+
+    public Task<DocumentSnapshot> get(FirebaseFirestore db, String document) {
+        String tableName = getTableName();
+        CollectionReference collectRef = db.collection(tableName);
+        return collectRef.document(document).get();
+    }
+
+    public Task<Void> delete(FirebaseFirestore db, String document) {
+        String tableName = getTableName();
+        CollectionReference collectRef = db.collection(tableName);
+        return collectRef.document(document).delete();
     }
 }
