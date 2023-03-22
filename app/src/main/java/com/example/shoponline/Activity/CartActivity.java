@@ -83,6 +83,7 @@ public class CartActivity extends AppCompatActivity {
                         }
                     });
                 }
+                recreate();
                 Toast.makeText(getApplicationContext(), "Mua hàng thành công", Toast.LENGTH_SHORT).show();
             }
         });

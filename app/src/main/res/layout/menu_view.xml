@@ -92,7 +92,7 @@
                     app:srcCompat="@drawable/icon_search" />
 
                 <EditText
-                    android:id="@+id/editTextTextPersonName2"
+                    android:id="@+id/edtSearchProducts"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"

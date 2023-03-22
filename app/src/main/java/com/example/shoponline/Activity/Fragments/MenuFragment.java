@@ -11,11 +11,15 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.os.Handler;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 
 import com.example.shoponline.Activity.CartActivity;
 import com.example.shoponline.R;
@@ -23,6 +27,7 @@ import com.example.shoponline.Services.ProductServices;
 import com.example.shoponline.Shared.Adapter.ListProductAdapter;
 import com.example.shoponline.Shared.Entities.ProductEntity;
 import com.example.shoponline.Shared.Enums.ProductType;
+import com.example.shoponline.Shared.Utils.CommonFunction;
 import com.example.shoponline.Shared.Utils.LoadingDialog;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -30,8 +35,10 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class MenuFragment extends Fragment {
 
@@ -39,6 +46,8 @@ public class MenuFragment extends Fragment {
     ProductServices productServices;
     RecyclerView rcvMenuItem;
     LoadingDialog loadingDialog;
+    private Handler handler = new Handler();
+    private Runnable runnable;
 
     public MenuFragment(LoadingDialog loadingDialog) {
         db = FirebaseFirestore.getInstance();
@@ -49,7 +58,10 @@ public class MenuFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getAllProducts();
+    }
 
+    private void getAllProducts() {
         loadingDialog.mask();
         List<ProductEntity> products = new ArrayList<>();
         productServices.getAll(db).addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
@@ -135,6 +147,60 @@ public class MenuFragment extends Fragment {
             public void onClick(View v) {
                 Intent i = new Intent(getContext(), CartActivity.class);
                 startActivity(i);
+            }
+        });
+        EditText edtSearchProducts = getView().findViewById(R.id.edtSearchProducts);
+
+        edtSearchProducts.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+// Hủy bỏ việc xử lý trước đó (nếu có)
+                handler.removeCallbacks(runnable);
+
+                // Tạo một Runnable để xử lý sau 300ms
+                runnable = new Runnable() {
+                    @Override
+                    public void run() {
+                        String text = edtSearchProducts.getText().toString();
+                        if (text.length() == 0) {
+                            getAllProducts();
+                            return;
+                        }
+                        loadingDialog.mask();
+                        productServices.getAll(db).addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                        if (task.isSuccessful()) {
+                                            List<ProductEntity> products = new ArrayList<>();
+                                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                                Log.d("TAG", document.getId() + " => " + document.getData());
+                                                ProductEntity product = document.toObject(ProductEntity.class);
+                                                String productNameNomalize = CommonFunction.convertStringToUnaccented(product.getProductName().toLowerCase());
+                                                String searchText = CommonFunction.convertStringToUnaccented(text.toLowerCase());
+                                                if (productNameNomalize.contains(searchText)) {
+                                                    products.add(product);
+                                                }
+                                            }
+                                            showListProduct(ProductType.FOOD, products);
+                                        }
+                                        loadingDialog.unmask();
+                                    }
+                                });
+                    }
+                };
+
+                // Trì hoãn việc xử lý trong 300ms
+                handler.postDelayed(runnable, 1000);
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
             }
         });
     }

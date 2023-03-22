@@ -150,6 +150,14 @@ public class ProductDetailActivity extends AppCompatActivity {
 
             }
         });
+
+        findViewById(R.id.imvAddToCart).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(getApplicationContext(), CartActivity.class);
+                startActivity(i);
+            }
+        });
     }
 
     private void setProductDetail(ProductEntity intentProduct) {
