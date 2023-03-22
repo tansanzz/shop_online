@@ -4,13 +4,13 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".Activity.Fragments.MenuFragment">
+    tools:context=".Presentation.Fragments.MenuFragment">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="#CBCBCB"
-        tools:context=".Activity.HomeActivity">
+        tools:context=".Presentation.HomeActivity">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/constraintLayout1"
