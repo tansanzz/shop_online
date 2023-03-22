@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -43,15 +44,18 @@ public class ProductDetailActivity extends AppCompatActivity {
         Intent i = getIntent();
         ProductEntity intentProduct = (ProductEntity) i.getSerializableExtra("product");
 
+        SharedPreferences sharedPreferences = getSharedPreferences("MyPrefs", MODE_PRIVATE);
+        String username = sharedPreferences.getString("username", "");
+
         loadingDialog.mask();
-        cartServices.get(db, intentProduct.getProductCode()).addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+        cartServices.get(db, username).addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if (task.isSuccessful()) {
                     Map<String, Object> result = task.getResult().getData();
-                    if (result != null) {
+                    if (result != null && result.size() > 0 && result.get(intentProduct.getProductCode()) != null) {
                         TextView tvQuantity = findViewById(R.id.tvQuantity);
-                        tvQuantity.setText(String.valueOf(result.get("productQuantity")));
+                        tvQuantity.setText(String.valueOf(result.get(intentProduct.getProductCode())));
                     }
                 } else {
                     Log.d("TAG", "get failed with ", task.getException());
@@ -112,11 +116,11 @@ public class ProductDetailActivity extends AppCompatActivity {
                 try {
                     TextView tvQuantity = findViewById(R.id.tvQuantity);
                     int quantity = Integer.parseInt(tvQuantity.getText().toString());
-                    cartItem.put("productName", intentProduct.getProductName());
-                    cartItem.put("productQuantity", quantity);
-                    cartItem.put("productPrice", intentProduct.getProductPrice());
+                    cartItem.put(intentProduct.getProductCode(), quantity);
+                    SharedPreferences sharedPreferences = getSharedPreferences("MyPrefs", MODE_PRIVATE);
+                    String username = sharedPreferences.getString("username", "");
                     if(quantity > 0) {
-                        cartServices.insert(db, intentProduct.getProductCode(), cartItem).addOnCompleteListener(new OnCompleteListener<Void>() {
+                        cartServices.insert(db, username, cartItem).addOnCompleteListener(new OnCompleteListener<Void>() {
                             @Override
                             public void onComplete(@NonNull Task<Void> task) {
                                 loadingDialog.unmask();
@@ -128,7 +132,7 @@ public class ProductDetailActivity extends AppCompatActivity {
                             }
                         });
                     } else {
-                        cartServices.delete(db, intentProduct.getProductCode()).addOnCompleteListener(new OnCompleteListener<Void>() {
+                        cartServices.delete(db, username, intentProduct.getProductCode()).addOnCompleteListener(new OnCompleteListener<Void>() {
                             @Override
                             public void onComplete(@NonNull Task<Void> task) {
                                 loadingDialog.unmask();

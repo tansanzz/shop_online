@@ -15,6 +15,23 @@ public class CartEntity {
 
     private double productPrice;
 
+    public CartEntity() {
+    }
+
+    public CartEntity(String cartId, String productCode, String productName, int productQuantity, double productPrice) {
+        this.cartId = cartId;
+        this.productCode = productCode;
+        this.productName = productName;
+        this.productQuantity = productQuantity;
+        this.productPrice = productPrice;
+    }
+
+    public CartEntity(ProductEntity pe) {
+        this.productCode = pe.getProductCode();
+        this.productName = pe.getProductName();
+        this.productPrice = pe.getProductPrice();
+    }
+
     public String getCartId() {
         return cartId;
     }

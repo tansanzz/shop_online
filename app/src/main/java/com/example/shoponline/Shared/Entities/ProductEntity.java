@@ -40,6 +40,10 @@ public class ProductEntity implements Serializable {
         this.productImageSrc = productImageSrc;
     }
 
+    public ProductEntity(String productName) {
+        this.productName = productName;
+    }
+
     public UUID getProductId() {
         return productId;
     }

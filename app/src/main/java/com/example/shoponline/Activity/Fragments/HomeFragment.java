@@ -1,5 +1,6 @@
 package com.example.shoponline.Activity.Fragments;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -12,9 +13,16 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.example.shoponline.Activity.CartActivity;
 import com.example.shoponline.R;
+import com.example.shoponline.Services.OrderHistoryServices;
 import com.example.shoponline.Shared.Adapter.PopularProductAdapter;
 import com.example.shoponline.Shared.Entities.ProductEntity;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -22,8 +30,11 @@ import java.util.List;
 
 public class HomeFragment extends Fragment {
 
+    FirebaseFirestore db;
+
     public HomeFragment() {
         // Required empty public constructor
+        db = FirebaseFirestore.getInstance();
     }
 
     @Override
@@ -40,15 +51,34 @@ public class HomeFragment extends Fragment {
         RecyclerView rcvPopularDrink = (RecyclerView) getView().findViewById(R.id.rcvPopularDrink);
 
         List products = new ArrayList<ProductEntity>();
-        products.add(new ProductEntity("Cơm", 15.5, ""));
-        products.add(new ProductEntity("Cơm 1", 5.55, ""));
-        products.add(new ProductEntity("Cơm 1",51.5, ""));
-        PopularProductAdapter adapter = new PopularProductAdapter(products);
+        OrderHistoryServices orderHistoryServices = new OrderHistoryServices();
+        orderHistoryServices.getMostBuyProduct(db).addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()) {
+                    List<DocumentSnapshot> documentSnapshots = task.getResult().getDocuments();
+                    for (DocumentSnapshot documnet:documentSnapshots) {
+                        String fieldName = documnet.getId();
+                        products.add(new ProductEntity(fieldName, null, ""));
+                    }
 
-        rcvPopularFood.setLayoutManager(new LinearLayoutManager( getContext(), LinearLayoutManager.HORIZONTAL, false));
-        rcvPopularFood.setAdapter(adapter);
+                    PopularProductAdapter adapter = new PopularProductAdapter(products);
 
-        rcvPopularDrink.setLayoutManager(new LinearLayoutManager( getContext(), LinearLayoutManager.HORIZONTAL, false));
-        rcvPopularDrink.setAdapter(adapter);
+                    rcvPopularFood.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
+                    rcvPopularFood.setAdapter(adapter);
+
+                    rcvPopularDrink.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
+                    rcvPopularDrink.setAdapter(adapter);
+                }
+            }
+        });
+
+        getView().findViewById(R.id.imvCart).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(getContext(), CartActivity.class);
+                startActivity(i);
+            }
+        });
     }
 }

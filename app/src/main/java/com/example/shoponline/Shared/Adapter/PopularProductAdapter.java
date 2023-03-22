@@ -35,7 +35,7 @@ public class PopularProductAdapter extends RecyclerView.Adapter<PopularProductAd
         final ProductEntity product = products.get(position);
         holder.imvProductImage.setImageResource(R.drawable.frame_8);
         holder.tvProductName.setText(product.getProductName());
-        holder.tvProductPrice.setText(product.getProductPrice().toString() + " đồng");
+        holder.tvProductPrice.setText(product.getProductPrice() == null ? "" : product.getProductPrice().toString() + " đồng");
     }
 
     @Override

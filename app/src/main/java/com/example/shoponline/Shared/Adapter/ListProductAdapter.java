@@ -1,6 +1,7 @@
 package com.example.shoponline.Shared.Adapter;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -22,16 +23,19 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.List;
+import java.util.Map;
 
 public class ListProductAdapter extends RecyclerView.Adapter<ListProductAdapter.ViewHolder> {
     public List<ProductEntity> products;
     CartServices cartServices;
     FirebaseFirestore db;
+    String username;
 
-    public ListProductAdapter(List<ProductEntity> products) {
+    public ListProductAdapter(List<ProductEntity> products, String username) {
         this.products = products;
         cartServices = new CartServices();
         db = FirebaseFirestore.getInstance();
+        this.username = username;
     }
 
     @NonNull
@@ -47,11 +51,16 @@ public class ListProductAdapter extends RecyclerView.Adapter<ListProductAdapter.
     @Override
     public void onBindViewHolder(@NonNull ListProductAdapter.ViewHolder holder, int position) {
         final ProductEntity product = products.get(position);
-        cartServices.get(db, product.getProductCode()).addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+
+        cartServices.get(db, username).addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if (task.isSuccessful() && task.getResult().getData() != null) {
-                    holder.imvAdd.setImageResource(R.drawable.icon_checked);
+
+                if (task.isSuccessful()) {
+                    Map<String, Object> result = task.getResult().getData();
+                    if (result != null && result.size() > 0 && result.get(product.getProductCode()) != null) {
+                        holder.imvAdd.setImageResource(R.drawable.icon_checked);
+                    }
                 } else if (!task.isSuccessful()) {
                     Log.d("TAG", "get failed with ", task.getException());
                 }

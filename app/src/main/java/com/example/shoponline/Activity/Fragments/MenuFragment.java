@@ -1,6 +1,7 @@
 package com.example.shoponline.Activity.Fragments;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
 
@@ -140,12 +141,14 @@ public class MenuFragment extends Fragment {
 
     private void showListProduct(ProductType type, List products) {
         ListProductAdapter adapter = null;
+        SharedPreferences sharedPreferences = getActivity().getSharedPreferences("MyPrefs", getActivity().MODE_PRIVATE);
+        String username = sharedPreferences.getString("username", "");
         switch (type) {
             case FOOD:
-                adapter = new ListProductAdapter(products);
+                adapter = new ListProductAdapter(products, username);
                 break;
             case DRINK:
-                adapter = new ListProductAdapter(products);
+                adapter = new ListProductAdapter(products, username);
                 break;
         }
         rcvMenuItem.setAdapter(adapter);

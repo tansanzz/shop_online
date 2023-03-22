@@ -10,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import com.example.shoponline.Domain.UserDomain;
 import com.example.shoponline.R;
@@ -61,6 +62,8 @@ public class SignupFragment extends Fragment {
 
         if (isUserValid) {
             signupToFirebase(user);
+        } else {
+            Toast.makeText(getContext(), "Tài khoản hoặc mật khẩu không hợp lệ", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -84,9 +87,9 @@ public class SignupFragment extends Fragment {
             @Override
             public void onComplete(@NonNull Task<AuthResult> result) {
                 if (result.isSuccessful()) {
-                    System.out.println("success");
+                    Toast.makeText(getContext(), "Đăng ký tài khoản thành công", Toast.LENGTH_SHORT).show();
                 } else {
-                    System.out.println("error");
+                    Toast.makeText(getContext(), "Đăng ký tài khoản thất bại, vui lòng thử lại", Toast.LENGTH_SHORT).show();
                 }
                 loadingDialog.unmask();
             }

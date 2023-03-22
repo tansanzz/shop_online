@@ -18,16 +18,4 @@ public class ProductServices extends BaseServices<ProductEntity> {
     public ProductServices() {
         super(ProductEntity.class);
     }
-
-    public Task<QuerySnapshot> getAllFoods(FirebaseFirestore db) {
-        String tableName = getTableName();
-        CollectionReference collectRef = db.collection(tableName);
-        return collectRef.whereEqualTo("ProductType", ProductType.FOOD).get();
-    }
-
-    public Task<QuerySnapshot> getAllDrinks(FirebaseFirestore db) {
-        String tableName = getTableName();
-        CollectionReference collectRef = db.collection(tableName);
-        return collectRef.whereEqualTo("ProductType", ProductType.DRINK).get();
-    }
 }

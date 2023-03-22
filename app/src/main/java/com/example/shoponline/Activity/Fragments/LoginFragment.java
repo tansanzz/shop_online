@@ -1,6 +1,8 @@
 package com.example.shoponline.Activity.Fragments;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -10,7 +12,9 @@ import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import com.example.shoponline.Activity.HomeActivity;
 import com.example.shoponline.Domain.UserDomain;
@@ -28,7 +32,7 @@ public class LoginFragment extends Fragment {
     private LoadingDialog loadingDialog;
 
     private EditText edtUsername, edtPassword;
-
+    CheckBox isRememberMe;
     public LoginFragment(){
         // require a empty public constructor
     }
@@ -50,6 +54,17 @@ public class LoginFragment extends Fragment {
                 onClickLogin(v);
             }
         });
+
+        isRememberMe = getView().findViewById(R.id.cbxRememberUser);
+
+        SharedPreferences sharedPreferences = getActivity().getSharedPreferences("MyPrefs", Context.MODE_PRIVATE);
+        String username = sharedPreferences.getString("username1", "");
+        String password = sharedPreferences.getString("password", "");
+        if(!CommonFunction.isEmpty(username) && !CommonFunction.isEmpty(password)) {
+            edtUsername.setText(username);
+            edtPassword.setText(password);
+            isRememberMe.setChecked(true);
+        }
     }
 
     @Override
@@ -70,6 +85,8 @@ public class LoginFragment extends Fragment {
 
         if (isUserValid) {
             loginToFirebase(user);
+        } else {
+            Toast.makeText(getContext(), "Tài khoản hoặc mật khẩu không hợp lệ", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -83,10 +100,22 @@ public class LoginFragment extends Fragment {
             @Override
             public void onComplete(@NonNull Task<AuthResult> result) {
                 if (result.isSuccessful()) {
+                    SharedPreferences sharedPreferences = getActivity().getSharedPreferences("MyPrefs", Context.MODE_PRIVATE);
+                    SharedPreferences.Editor editor = sharedPreferences.edit();
+                    editor.putString("username", user.getUsername());
+                    if(isRememberMe.isChecked()) {
+                        editor.putString("username1", user.getUsername());
+                        editor.putString("password", user.getPassword());
+                        editor.apply();
+                    } else  {
+                        editor.remove("username1");
+                        editor.remove("password");
+                        editor.apply();
+                    }
                     Intent intent = new Intent(getActivity(), HomeActivity.class);
                     startActivity(intent);
                 } else {
-                    System.out.println("error");
+                    Toast.makeText(getContext(), "Tài khoản hoặc mật khẩu không chính xác", Toast.LENGTH_SHORT).show();
                 }
                 loadingDialog.unmask();
             }
